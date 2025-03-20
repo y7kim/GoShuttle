@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { RallyService } from './rally.service';
 import { Observable } from 'rxjs';
 import { Rally } from './rally.model';
@@ -8,7 +8,12 @@ export class RallyController {
   constructor(private rallyService: RallyService) {}
 
   @Get()
-  get(): Observable<Rally[]> {
+  getRallies(): Observable<Rally[]> {
     return this.rallyService.getRallies();
+  }
+
+  @Post()
+  getRalliesWithinBounds(@Body() polygon: Array<number[]>): Observable<Rally[]> {
+    return this.rallyService.getRalliesWithinPolygon(polygon);
   }
 }

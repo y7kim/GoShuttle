@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RallyController } from './rally.controller';
-import { RallyModule } from './rally.module';
 import { RallyService } from './rally.service';
 import { of } from 'rxjs';
 import { rallies } from './mockRallies';

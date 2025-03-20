@@ -26,7 +26,11 @@ export class Rally extends Document {
   @Prop({ required: true })
   free: boolean;
 
-  @Prop()
+  @Prop({
+    required: function(): boolean {
+      return !this.free;
+    }
+  })
   cost?: number;
 
   @Prop({ required: true })
@@ -48,6 +52,8 @@ export class Rally extends Document {
     color: string;
     make: string;
   };
+
+  diffMin: number;
 }
 
 export const RallySchema = SchemaFactory.createForClass(Rally);
