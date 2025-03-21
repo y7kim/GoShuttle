@@ -1,84 +1,68 @@
 <script setup lang="ts">
-
-import { Loader } from '@googlemaps/js-api-loader';
-import { onMounted } from 'vue';
-import axios, { type AxiosResponse } from 'axios';
-import { type Rally } from '../types/Rally.interface';
-import { GOOGLE_MAPS_API_KEY, MAP_ID } from '../../api-keys.const';
+import { loader } from './loader';
+import { drawMap } from './drawMap';
+import { rallyAPI } from './Rally.api';
 import { useRallyStore } from '../stores/rally';
+import { type Rally } from '../types/Rally.interface';
+import { onMounted, ref } from 'vue';
 
-const loader: Loader = new Loader({
-  apiKey: GOOGLE_MAPS_API_KEY,
-  version: "weekly",
-});
 const store = useRallyStore();
+let markers: google.maps.marker.AdvancedMarkerElement[] = [];
+let rallyError = ref<unknown>(null);
 
 onMounted(async () => {
+  const { event } = await loader.importLibrary('core');
   const mapElement: HTMLElement | null = document.getElementById("map");
 
   if (mapElement) {
-    drawMap(mapElement);
+    const map: google.maps.Map = await drawMap(mapElement);
+
+    event.addListener(map, 'idle', async () => {
+      const currentBounds: google.maps.LatLngBounds | undefined = map.getBounds();
+      await getRalliesWithinBounds(currentBounds);
+      hideAndShowMarkers(map, markers);
+    });
   }
 });
 
-async function drawMap(mapEl: HTMLElement) {
-  const { Map } = await loader.importLibrary('maps');
-  const { event } = await loader.importLibrary('core');
-  const currentLocation: google.maps.LatLngLiteral | null = await getCurrentLocation();
-
-  const map = new Map(mapEl, {
-    zoom: 12,
-    center: currentLocation,
-    mapId: MAP_ID
-  });
-
-  event.addListener(map, 'bounds_changed', () => getRalliesWithinBounds(map));
-  event.addListener(map, 'zoom_changed', () => getRalliesWithinBounds(map));
-};
-
-async function getRalliesWithinBounds(map: google.maps.Map) {
-  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
+async function getRalliesWithinBounds(
+  bounds: google.maps.LatLngBounds | undefined
+): Promise<void> {
   let rallies: Rally[] = [];
-  let currentBounds: google.maps.LatLngBounds | undefined;
 
-  currentBounds = map.getBounds();
+  if (bounds) {
+    [rallyError.value, rallies] = await rallyAPI.getRalliesWithinBounds(convertBoundsToPolygon(bounds));
+  }
+  return store.updateRallies(rallies);
+}
 
-  if (currentBounds) {
-    rallies = await getRallies(
-      convertBoundsToPolygon(currentBounds)
-    );
-    store.updateRallies(rallies);
+async function hideAndShowMarkers(
+  map: google.maps.Map,
+  markers: google.maps.marker.AdvancedMarkerElement[]
+) {
+  const { AdvancedMarkerElement } = await loader.importLibrary("marker");
 
-    rallies.forEach((rally: Rally) => {
-      const marker = new AdvancedMarkerElement({
+  // Hide markers
+  for (let i = 0; i < markers.length; i++) {
+    markers[i].map = null;
+  }
+  // Delete all markers
+  markers.length = 0;
+
+  // Create and show markers
+  store.rallies.forEach((rally: Rally) => {
+    const lat: number = rally.location.coordinates[1];
+    const lng: number = rally.location.coordinates[0];
+
+    markers.push(
+      new AdvancedMarkerElement({
         map,
         position: {
-          lat: rally.location.coordinates[1],
-          lng: rally.location.coordinates[0]
+          lat,
+          lng
         }
-      });
-    });
-  }
-}
-
-async function getCurrentLocation(): Promise<google.maps.LatLngLiteral | null> {
-  return new Promise((resolve, reject) => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((location) => {
-        resolve({
-          lat: location.coords.latitude,
-          lng: location.coords.longitude
-        });
-      });
-    } else {
-      reject(null);
-    }
-  });
-}
-
-async function getRallies(polygon: Array<number[]>): Promise<Rally[]> {
-  return axios.post('./api/rally', polygon).then((res: AxiosResponse) => {
-    return res.data as Rally[];
+      })
+    );
   });
 }
 
@@ -96,7 +80,7 @@ function convertBoundsToPolygon(bounds: google.maps.LatLngBounds): Array<number[
 </script>
 
 <template>
-  <div id="map" class="h-200 sm:w-200 w-full"></div>
+  <div id="map" class="h-full sm:w-200 w-full"></div>
 </template>
 
 <style scoped></style>

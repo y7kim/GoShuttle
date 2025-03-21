@@ -6,9 +6,9 @@ import RallyList from './components/RallyList.vue';
 
 <template>
   <AppHeader />
-  <div class="sm:flex sm:justify-between p-10 flex-row-reverse">
-    <RallyList />
+  <div class="sm:flex sm:justify-between items-center h-screen p-16 pt-32">
     <Map />
+    <RallyList />
   </div>
 </template>
 
