@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Google Maps API Key
-api-keys.const.ts
+constants.ts

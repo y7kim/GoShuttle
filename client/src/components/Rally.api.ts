@@ -1,4 +1,4 @@
-import axios, { type AxiosResponse, type AxiosInstance, AxiosError } from 'axios';
+import axios, { type AxiosInstance } from 'axios';
 import type { Rally } from "../types/Rally.interface";
 
 class RallyAPIService {

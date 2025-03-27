@@ -1,13 +1,13 @@
 export interface Rally {
     location: {
-        type: "POINT";
+        type: "Point";
         coordinates: number[];
     };
     capacity: number;
     skillLevel: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-    time: Date;
+    time: string;
     free: boolean;
-    cost?: string;
+    cost?: number;
     vehicle: {
         color: string;
         make: string;
