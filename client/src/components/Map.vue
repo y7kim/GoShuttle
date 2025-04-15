@@ -3,19 +3,32 @@ import { drawMap, hideAndShowMarkers, convertBoundsToPolygon, loader } from './M
 import { rallyAPI } from './Rally.api';
 import { useRallyStore } from '../stores/rally';
 import { type Rally } from '../types/Rally.interface';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 
 const store = useRallyStore();
+const { activeRally } = storeToRefs(store);
+
+let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
 let rallies: Rally[] = [];
 let rallyError: unknown;
+
+watch(activeRally, () => {
+  if (activeRally.value) {
+    map.setCenter({
+      lat: activeRally.value.location.coordinates[1],
+      lng: activeRally.value.location.coordinates[0],
+    });
+  }
+});
 
 onMounted(async () => {
   const { event } = await loader.importLibrary('core');
   const mapElement: HTMLElement | null = document.getElementById("map");
 
   if (mapElement) {
-    const map: google.maps.Map = await drawMap(mapElement);
+    map = await drawMap(mapElement);
 
     event.addListener(map, 'idle', async () => {
       const currentBounds: google.maps.LatLngBounds | undefined = map.getBounds();
@@ -30,7 +43,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="map" class="h-full sm:w-3/4 w-full"></div>
+  <div id="map" class="h-full basis-200 min-w-md"></div>
 </template>
 
 <style scoped></style>
