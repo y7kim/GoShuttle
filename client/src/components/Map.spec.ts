@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import Map from './Map.vue';
-import { convertBoundsToPolygon, hideAndShowMarkers, loader } from './Map.utilities';
+import { convertBoundsToPolygon, hideAndShowMarkers, loader } from '../helpers/Map.utilities';
 import type { Rally } from '../types/Rally.interface';
 import { useRallyStore } from '../stores/rally';
 

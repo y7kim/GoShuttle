@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { drawMap, hideAndShowMarkers, convertBoundsToPolygon, loader } from './Map.utilities';
-import { rallyAPI } from './Rally.api';
+import { drawMap, hideAndShowMarkers, convertBoundsToPolygon, loader } from '../helpers/Map.utilities';
+import { rallyAPI } from '../helpers/Rally.api';
 import { useRallyStore } from '../stores/rally';
 import { type Rally } from '../types/Rally.interface';
 import { onMounted, ref, watch } from 'vue';
@@ -33,7 +33,9 @@ onMounted(async () => {
     event.addListener(map, 'idle', async () => {
       const currentBounds: google.maps.LatLngBounds | undefined = map.getBounds();
       if (currentBounds) {
-        [rallyError, rallies] = await rallyAPI.getRalliesWithinBounds(convertBoundsToPolygon(currentBounds));
+        [rallyError, rallies] = await rallyAPI.getRalliesWithinBounds(
+          convertBoundsToPolygon(currentBounds)
+        );
         store.updateRallies(rallies);
         hideAndShowMarkers(map, markers);
       }
