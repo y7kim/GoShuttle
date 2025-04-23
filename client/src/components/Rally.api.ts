@@ -14,8 +14,11 @@ class RallyAPIService {
     try {
       let { data } = await this.axiosInstance.request<Rally[]>({
         method: 'post',
-        url: '/rally',
-        data: bounds
+        url: '/search',
+        data: bounds,
+        headers: {
+          'X-HTTP-Method-Override': 'GET'
+        }
       });
       return [null, data];
     } catch (error) {

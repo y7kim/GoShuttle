@@ -1,4 +1,5 @@
 export interface Rally {
+    _id: string;
     location: {
         type: "Point";
         coordinates: number[];

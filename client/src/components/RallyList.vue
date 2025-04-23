@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { useRallyStore } from '../stores/rally';
 
 const store = useRallyStore();
+const { activeRally } = storeToRefs(store);
 
 </script>
 
@@ -11,6 +13,7 @@ const store = useRallyStore();
       <li v-for="rally in store.rallies"
         @click="store.updateActiveRally(rally)"
         class="flex justify-between gap-x-6 p-5"
+        :class="{ 'bg-gray-200': rally._id === activeRally?._id }"
       >
         <div class="flex min-w-0 gap-x-4">
           <div class="min-w-0 flex-auto">

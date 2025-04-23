@@ -53,6 +53,9 @@ export class Rally extends Document {
     make: string;
   };
 
+  @Prop({ required: true })
+  username: string;
+
   diffMin: number;
 }
 

@@ -3,10 +3,16 @@ import { Rally } from './rally.model';
 import { from, map, Observable } from 'rxjs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CreateRallyDto } from './create-rally.dto';
 
 @Injectable()
 export class RallyService {
   constructor(@InjectModel('rallies') private rallyModel: Model<Rally>) { }
+
+  saveRally(data: CreateRallyDto): Observable<Rally> {
+    const createRally = this.rallyModel.create({...data});
+    return from(createRally);
+  }
 
   getRallies(): Observable<Rally[]> {
     return from(this.rallyModel.find({}).lean().exec()).pipe(

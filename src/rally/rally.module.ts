@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { RallyService } from './rally.service';
 import { RallySchema } from './rally.model';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RallyController } from './rally.controller';
+import { RallyController, SearchController } from './rally.controller';
 
 @Module({
   imports: [
@@ -14,6 +14,9 @@ import { RallyController } from './rally.controller';
     ]),
   ],
   providers: [RallyService],
-  controllers: [RallyController],
+  controllers: [
+    RallyController,
+    SearchController
+  ],
 })
 export class RallyModule {}

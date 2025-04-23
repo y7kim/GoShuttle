@@ -9,6 +9,7 @@ import { useRallyStore } from '../stores/rally';
 const mockRallies: Rally[] = vi.hoisted(() => {
   return [
     {
+      "_id": "67d9e602abb820aec96b140c",
       location: {
         type: "Point",
         coordinates: [-110.434189, 24.078269]
