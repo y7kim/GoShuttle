@@ -10,8 +10,11 @@ export const loader: Loader = new Loader({
 });
 
 export async function drawMap(mapEl: HTMLElement): Promise<google.maps.Map> {
+  const store = useRallyStore();
   const { Map } = await loader.importLibrary('maps');
-  const currentLocation: google.maps.LatLngLiteral | null = await getCurrentLocation();
+
+  const currentLocation: google.maps.LatLngLiteral = await getCurrentLocation();
+  store.updateCurrentLocation(currentLocation);
 
   const map = new Map(mapEl, {
     zoom: 12,
@@ -66,7 +69,7 @@ export function convertBoundsToPolygon(bounds: google.maps.LatLngBounds): Array<
   ];
 }
 
-async function getCurrentLocation(): Promise<google.maps.LatLngLiteral | null> {
+async function getCurrentLocation(): Promise<google.maps.LatLngLiteral> {
   return new Promise((resolve) => {
     navigator.geolocation.getCurrentPosition((location) => {
       resolve({

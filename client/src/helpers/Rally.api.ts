@@ -26,6 +26,20 @@ class RallyAPIService {
     }
 
   }
+
+  async saveRally(rally: any): Promise<[unknown, Rally | null]> {
+    try {
+      let { data } = await this.axiosInstance.request<Rally>({
+        method: 'post',
+        url: '/rally',
+        data: rally,
+      });
+      return [null, data];
+    } catch (error) {
+      return [error, null];
+    }
+
+  }
 }
 
 export const rallyAPI = new RallyAPIService();

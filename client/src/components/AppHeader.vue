@@ -7,6 +7,7 @@
       <div class="text-xl text-red-800">
         Go<span class="text-indigo-800">Shuttle</span>
       </div>
+      <router-link to="/CreateRally">Create Rally</router-link>
     </div>
   </header>
 </template>
