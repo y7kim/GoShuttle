@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import './App.css';
 import { GOOGLE_MAPS_API_KEY, MAP_ID, defaultCurrentLocation } from './constants';
@@ -32,10 +32,11 @@ function App() {
     height: '400px',
   };
 
-  const center = {
-    lat: location.latitude || defaultCurrentLocation.lat, // Default to defaultCurrentLocation if location is not available
+  // Memoize the center object to prevent re-creation on every render
+  const center = useMemo(() => ({
+    lat: location.latitude || defaultCurrentLocation.lat,
     lng: location.longitude || defaultCurrentLocation.lng,
-  };
+  }), [location]);
 
   const convertBoundsToArray = (bounds) => {
     if (!bounds) return null;
@@ -43,7 +44,7 @@ function App() {
     const northeast = bounds.getNorthEast();
     const southwest = bounds.getSouthWest();
 
-    // Create an array of 4 corners
+    // Create an array of 5 coordinates representing the corners of the bounding box
     return [
       [northeast.lng(), southwest.lat()],
       [northeast.lng(), northeast.lat()],
@@ -101,13 +102,12 @@ function App() {
           <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
             <GoogleMap
               mapContainerStyle={mapContainerStyle}
-              center={center}
+              center={center} // Memoized center to prevent re-centering
               zoom={15}
               mapId={MAP_ID}
               onLoad={handleMapLoad} // Save map instance on load
               onDragEnd={handleDragEnd} // Trigger logic when the user stops dragging the map
             >
-              <Marker position={center} /> {/* Marker for user's location */}
               {markers.map((marker, index) => (
                 <Marker
                   key={index}
