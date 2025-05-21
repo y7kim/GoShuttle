@@ -10,10 +10,10 @@ import { join } from 'path';
   imports: [
     ServeStaticModule.forRoot({
       // Vue client
-      // rootPath: join(__dirname, '..', 'client/dist'),
+      rootPath: join(__dirname, '..', 'client/dist'),
 
       // React client
-      rootPath: join(__dirname, '..', 'frontend', 'build'),
+      // rootPath: join(__dirname, '..', 'frontend', 'build'),
     }),
     MongooseModule.forRoot('mongodb://localhost/goShuttle'),
     RallyModule,

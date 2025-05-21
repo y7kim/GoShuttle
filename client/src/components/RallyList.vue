@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { useRallyStore } from '../stores/rally';
+import { useRallies } from '../helpers/Map.utilities';
 
-const store = useRallyStore();
-const { activeRally } = storeToRefs(store);
-
+const { rallies, activeRally, setActiveRally } = useRallies();
 </script>
 
 <template>
   <div class="basis-100 shrink-2">
-    <ul v-if="store.rallies.length" role="list" class="divide-y divide-gray-100 w-full">
-      <li v-for="rally in store.rallies"
-        @click="store.updateActiveRally(rally)"
-        class="flex justify-between gap-x-6 p-5"
-        :class="{ 'bg-gray-200': rally._id === activeRally?._id }"
-      >
+    <ul v-if="rallies.length" role="list" class="divide-y divide-gray-100 w-full">
+      <li v-for="rally in rallies" @click="setActiveRally(rally)" class="flex justify-between gap-x-6 p-5"
+        :class="{ 'bg-gray-200': rally._id === activeRally?._id }">
         <div class="flex min-w-0 gap-x-4">
           <div class="min-w-0 flex-auto">
             <p class="text-sm font-semibold leading-6 text-gray-900">{{ rally.username }}</p>
@@ -29,7 +23,7 @@ const { activeRally } = storeToRefs(store);
         </div>
       </li>
     </ul>
-    <p v-if="!store.rallies.length">No Rallies found.</p>
+    <p v-if="!rallies.length">No Rallies found.</p>
   </div>
 </template>
 

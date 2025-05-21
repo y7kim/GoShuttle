@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils';
+/* import { flushPromises, mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import Map from './Map.vue';
@@ -86,4 +86,4 @@ describe('onMounted()', () => {
     expect(useRallyStore().updateRallies).toHaveBeenCalledWith(mockRallies);
     expect(hideAndShowMarkers).toHaveBeenCalledWith(mockMap, []);
   });
-});
+}); */

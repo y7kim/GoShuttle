@@ -1,35 +1,68 @@
 import { defaultCurrentLocation, MAP_ID } from '../../constants';
 import type { Rally } from '../types/Rally.interface';
-import { useRallyStore } from '../stores/rally';
 import { GOOGLE_MAPS_API_KEY } from '../../constants';
 import { Loader } from '@googlemaps/js-api-loader';
+import { reactive, ref, shallowRef, type Reactive } from 'vue';
+import { rallyAPI } from './Rally.api';
 
 export const loader: Loader = new Loader({
   apiKey: GOOGLE_MAPS_API_KEY,
   version: "weekly",
 });
 
-export async function drawMap(mapEl: HTMLElement): Promise<google.maps.Map> {
-  const store = useRallyStore();
-  const { Map } = await loader.importLibrary('maps');
+const map = shallowRef<google.maps.Map | null>(null);
+const currentLocation = ref<google.maps.LatLngLiteral | null>(null);
+const currentBounds = ref<google.maps.LatLngBounds | null>(null);
 
-  const currentLocation: google.maps.LatLngLiteral = await getCurrentLocation();
-  store.updateCurrentLocation(currentLocation);
+export function useMap() {
+  const initMap = async (mapEl: HTMLElement) => {
+    const { Map } = await loader.importLibrary('maps');
+    currentLocation.value = await getCurrentLocation();
 
-  const map = new Map(mapEl, {
-    zoom: 12,
-    center: currentLocation,
-    mapId: MAP_ID
-  });
+    map.value = new Map(mapEl, {
+      zoom: 12,
+      center: currentLocation.value,
+      mapId: MAP_ID
+    });
+  };
 
-  return map;
-};
+  return {
+    map,
+    currentLocation,
+    currentBounds,
+    initMap
+  }
+}
+
+const activeRally = ref<Rally | null>(null);
+const rallies = reactive<Rally[]>([]);
+const rallyError = ref<unknown>(null);
+
+export function useRallies() {
+  const fetchRallies = async (bounds: Array<number[]>) => {
+    const [error, data] = await rallyAPI.getRalliesWithinBounds(bounds);
+    rallies.splice(0, rallies.length, ...data);
+    rallyError.value = error;
+  };
+
+  const setActiveRally = (rally: Rally) => {
+    activeRally.value = rally;
+  };
+
+  return {
+    activeRally,
+    rallies,
+    rallyError,
+    setActiveRally,
+    fetchRallies
+  }
+}
 
 export async function hideAndShowMarkers(
   map: google.maps.Map,
-  markers: google.maps.marker.AdvancedMarkerElement[]
+  markers: google.maps.marker.AdvancedMarkerElement[],
+  rallies: Reactive<Rally[]>
 ) {
-  const store = useRallyStore();
   const { AdvancedMarkerElement } = await loader.importLibrary("marker");
 
   // Hide markers
@@ -40,7 +73,7 @@ export async function hideAndShowMarkers(
   markers.length = 0;
 
   // Create and show markers
-  store.rallies.forEach((rally: Rally) => {
+  rallies.forEach((rally: Rally) => {
     const lat: number = rally.location.coordinates[1];
     const lng: number = rally.location.coordinates[0];
 

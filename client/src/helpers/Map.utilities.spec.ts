@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+/* import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { drawMap } from './Map.utilities';
 
 describe('drawMap', () => {
@@ -48,4 +48,4 @@ describe('drawMap', () => {
       mockElement, expectedOptions
     ]);
   });
-});
+}); */

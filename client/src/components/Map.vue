@@ -1,22 +1,15 @@
 <script setup lang="ts">
-import { drawMap, hideAndShowMarkers, convertBoundsToPolygon, loader } from '../helpers/Map.utilities';
-import { rallyAPI } from '../helpers/Rally.api';
-import { useRallyStore } from '../stores/rally';
-import { type Rally } from '../types/Rally.interface';
-import { onMounted, ref, watch } from 'vue';
-import { storeToRefs } from 'pinia';
+import { hideAndShowMarkers, convertBoundsToPolygon, loader, useMap, useRallies } from '../helpers/Map.utilities';
+import { onMounted, watch } from 'vue';
 
-const store = useRallyStore();
-const { activeRally } = storeToRefs(store);
+const { map, initMap } = useMap();
+const { activeRally, rallies, rallyError, fetchRallies } = useRallies();
 
-let map: google.maps.Map;
 let markers: google.maps.marker.AdvancedMarkerElement[] = [];
-let rallies: Rally[] = [];
-let rallyError: unknown;
 
 watch(activeRally, () => {
   if (activeRally.value) {
-    map.setCenter({
+    map.value?.setCenter({
       lat: activeRally.value.location.coordinates[1],
       lng: activeRally.value.location.coordinates[0],
     });
@@ -28,18 +21,20 @@ onMounted(async () => {
   const mapElement: HTMLElement | null = document.getElementById("map");
 
   if (mapElement) {
-    map = await drawMap(mapElement);
+    await initMap(mapElement);
 
-    event.addListener(map, 'idle', async () => {
-      const currentBounds: google.maps.LatLngBounds | undefined = map.getBounds();
-      if (currentBounds) {
-        [rallyError, rallies] = await rallyAPI.getRalliesWithinBounds(
-          convertBoundsToPolygon(currentBounds)
-        );
-        store.updateRallies(rallies);
-        hideAndShowMarkers(map, markers);
-      }
-    });
+    if (map.value) {
+      event.addListener(map.value, 'idle', async () => {
+        if (map.value) {
+          const currentBounds: google.maps.LatLngBounds | undefined = map.value.getBounds();
+
+          if (currentBounds) {
+            await fetchRallies(convertBoundsToPolygon(currentBounds));
+            hideAndShowMarkers(map.value, markers, rallies);
+          }
+        }
+      });
+    }
   }
 });
 </script>
