@@ -1,27 +1,17 @@
-import { type JSX, useState, useEffect } from 'react'
+import { type JSX } from 'react'
 import type { Rally } from '../types'
-import { getRallies } from '../api'
+import useFetch from '../hooks/useFetch'
 
 export default function RallyList(): JSX.Element {
-    const [rallies, setRallies] = useState<Rally[]>([])
-
-    useEffect(() => {
-        async function loadRallies(): Promise<void> {
-            try {
-                const rallies: Rally[] = await getRallies();
-                setRallies(rallies)
-            } catch (error) {
-                console.log(error)
-            }
-        }
-        loadRallies()
-    }, [])
+    const {response: rallies, isLoading} = useFetch<Rally[]>("/api/rally")
 
     return (
         <>
-            <div className='rally-list'>
+            <div>{isLoading}</div>
+            {!isLoading ? (
+                <div className='rally-list'>
             {
-                rallies.map(rally => (
+                rallies && rallies.map(rally => (
                     <div key={rally._id} className='rally-tile'>
                         <div className='rally-info'>
                             <div>{rally.username}</div>
@@ -31,6 +21,7 @@ export default function RallyList(): JSX.Element {
                 ))
             }
             </div>
+            ) : <h3>Loading...</h3>}
         </>
     )
 }
