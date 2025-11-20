@@ -6,7 +6,7 @@ const ActionTypes = {
     Error: "ERROR"
 } as const;
 
-interface UseFetchState<ResponseType> {
+export interface UseFetchState<ResponseType> {
     response: ResponseType | null,
     isLoading: boolean,
     error: Error | null

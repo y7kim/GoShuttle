@@ -1,9 +1,8 @@
-import { type JSX } from 'react'
-import type { Rally } from '../types'
-import useFetch from '../hooks/useFetch'
+import { type JSX, useContext } from 'react'
+import { RallyContext } from '../pages/Dashboard'
 
 export default function RallyList(): JSX.Element {
-    const {response: rallies, isLoading} = useFetch<Rally[]>("/api/rally")
+    const { response: rallies, isLoading } = useContext(RallyContext)
 
     return (
         <>
